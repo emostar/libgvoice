@@ -14,8 +14,8 @@ import (
 	"github.com/beeper/libgvoice/api"
 	"github.com/beeper/libgvoice/models"
 	"github.com/beeper/libgvoice/util"
+	gvLog "github.com/beeper/libgvoice/util/log"
 	"github.com/bitly/go-simplejson"
-	"go.uber.org/zap"
 )
 
 // GoogleVoiceClient interfaces with the Google Voice API over HTTPS and works
@@ -29,7 +29,7 @@ type GoogleVoiceClient struct {
 	apiSIDHash  string
 	cookieParam string
 
-	log *zap.SugaredLogger
+	log gvLog.Logger
 
 	// When a message is received, it is added to this map. Ideally this would
 	// be backed up to a database, but for now it's just in memory.
@@ -37,7 +37,7 @@ type GoogleVoiceClient struct {
 }
 
 // NewGoogleVoiceClient creates a new GoogleVoiceClient to interact with the API
-func NewGoogleVoiceClient(log *zap.SugaredLogger) *GoogleVoiceClient {
+func NewGoogleVoiceClient(log gvLog.Logger) *GoogleVoiceClient {
 	return &GoogleVoiceClient{
 		http:         &http.Client{},
 		baseURL:      "https://clients6.google.com/voice/v1/voiceclient",

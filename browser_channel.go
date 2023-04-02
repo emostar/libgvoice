@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strconv"
 
+	gvLog "github.com/beeper/libgvoice/util/log"
 	"github.com/bitly/go-simplejson"
-	"go.uber.org/zap"
 )
 
 type BrowserChannelEvent int
@@ -32,10 +32,10 @@ type BrowserChannel struct {
 	tryCount    int
 
 	eventChannel chan BrowserChannelEvent
-	log          *zap.SugaredLogger
+	log          gvLog.Logger
 }
 
-func NewBrowserChannel(eventChannel chan BrowserChannelEvent, log *zap.SugaredLogger) *BrowserChannel {
+func NewBrowserChannel(eventChannel chan BrowserChannelEvent, log gvLog.Logger) *BrowserChannel {
 	return &BrowserChannel{
 		GoogleVoiceClient: &GoogleVoiceClient{
 			http:    &http.Client{},
@@ -79,7 +79,7 @@ func (bc *BrowserChannel) StartEventListener() {
 		if bc.gsessionID == "" {
 			bc.gsessionID, err = bc.chooseServer()
 			if err != nil {
-				bc.log.Errorw("error choosing server", "error", err)
+				bc.log.Errorf("error choosing server: %s", err)
 				return
 			}
 		}
@@ -87,7 +87,7 @@ func (bc *BrowserChannel) StartEventListener() {
 		if bc.sid == "" {
 			bc.sid, err = bc.getSID()
 			if err != nil {
-				bc.log.Errorw("error getting SID", "error", err)
+				bc.log.Errorf("error getting SID: %s", err)
 				return
 			}
 		}
@@ -101,7 +101,7 @@ func (bc *BrowserChannel) StartEventListener() {
 		)
 		_, err := bc.doRawRequest("GET", rawURL, "", "", true)
 		if err != nil {
-			bc.log.Errorw("error in browser channel request", "error", err)
+			bc.log.Errorf("error in browser channel request: %s", err)
 			return
 		}
 	}
@@ -197,7 +197,7 @@ func (bc *BrowserChannel) doRawRequest(method, rawURL, body, contentType string,
 
 			if n > 0 && len(lineLengthMatches) == 0 {
 				// There is no data, we need to reset the entire connection
-				bc.log.Infoln("No data, resetting connection")
+				bc.log.Infof("No data, resetting connection")
 				bc.ResetData()
 				return "", nil
 			}
