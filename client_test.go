@@ -17,12 +17,27 @@ var (
 
 func init() {
 	panic("Set your cookie in init and remove this panic")
-	// cookies = ""
-	// logger, _ = zap.NewDevelopment()
+	//cookies = ""
+	//logger, _ = zap.NewDevelopment()
+}
+
+func TestClient_GetMessages(t *testing.T) {
+	eventChannel := make(chan interface{})
+	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar(), eventChannel)
+	gv.SetAuth(cookies)
+
+	threads, err := gv.FetchInbox("", false)
+	assert.Nil(t, err)
+
+	messages, err := gv.GetThread(&threads[0])
+	assert.Nil(t, err)
+	assert.NotEmpty(t, messages, "No messages found in first thread")
+	fmt.Println(messages)
 }
 
 func TestClient_GetAccountInfo(t *testing.T) {
-	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar())
+	eventChannel := make(chan interface{})
+	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar(), eventChannel)
 	gv.SetAuth(cookies)
 
 	info, err := gv.GetAccountInfo()
@@ -32,7 +47,8 @@ func TestClient_GetAccountInfo(t *testing.T) {
 }
 
 func TestFetchInbox(t *testing.T) {
-	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar())
+	eventChannel := make(chan interface{})
+	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar(), eventChannel)
 	gv.SetAuth(cookies)
 
 	// Fetch inbox
@@ -53,7 +69,8 @@ func TestFetchThread(t *testing.T) {
 }
 
 func TestSendMessage(t *testing.T) {
-	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar())
+	eventChannel := make(chan interface{})
+	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar(), eventChannel)
 	gv.SetAuth(cookies)
 
 	// https://7sim.org/free-phone-number-Ambr41nA
@@ -65,7 +82,8 @@ func TestSendMessage(t *testing.T) {
 }
 
 func TestNewMessageListener(t *testing.T) {
-	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar())
+	eventChannel := make(chan interface{})
+	gv := libgvoice.NewGoogleVoiceClient(logger.Sugar(), eventChannel)
 	gv.SetAuth(cookies)
 
 	// Start listening for new messages
